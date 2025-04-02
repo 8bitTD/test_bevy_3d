@@ -19,7 +19,8 @@ fn main() {
                     title: define::common::TOOLNAME.into(),
                     position: WindowPosition::new(IVec2::new(px, 0)),
                     resolution: (1500.0, 900.0).into(),
-                    present_mode: PresentMode::AutoNoVsync, 
+                    //present_mode: PresentMode::AutoNoVsync, 
+                    present_mode: PresentMode::AutoVsync,
                     prevent_default_event_handling: false,
                     fit_canvas_to_parent: true,
                     ..default()

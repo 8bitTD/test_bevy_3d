@@ -23,11 +23,35 @@ pub struct PlayerInfo;
 #[derive(Component)]
 pub struct PlayerCameraPos;
 
+pub fn draw_example_collection(
+    mut gizmos: Gizmos,
+) {
+    gizmos.grid(
+        Quat::from_rotation_x(90.0_f32.to_radians()),
+        UVec2::splat(105),
+        Vec2::new(10.0, 10.0),
+        Color::srgba_u8(0, 0, 0, 64)
+    );
+}
+
+pub fn check_reset_game(
+    mut player_root: Single<&mut Transform, With<PlayerRoot>>,
+    mut app: ResMut<MyApp>,
+){
+    if !app.is_reset_game{return;}
+    player_root.translation.x = 0.0;
+    player_root.translation.y = 2.0;
+    player_root.translation.z = 0.0;
+    player_root.rotation = Quat::from_rotation_y(0.0_f32.to_radians());
+    app.is_reset_game = false;
+}
+
 pub fn update_player(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut player_root: Single<&mut Transform, (With<PlayerRoot>, Without<PlayerTurn>)>,
     mut player_turn: Single<&mut Transform, (With<PlayerTurn>, Without<PlayerRoot>)>,
     time: Res<Time>,
+    mut app: ResMut<MyApp>,
 ){
     let ds = time.delta_secs();
     let dir = player_root.forward() * 50.0;
@@ -35,23 +59,23 @@ pub fn update_player(
 
     let left = keyboard_input.any_pressed([KeyCode::KeyA, KeyCode::ArrowLeft]);
     let right = keyboard_input.any_pressed([KeyCode::KeyD, KeyCode::ArrowRight]);
-    let up = keyboard_input.any_pressed([KeyCode::KeyW, KeyCode::ArrowUp]);
-    let down = keyboard_input.any_pressed([KeyCode::KeyS, KeyCode::ArrowDown]);
+    let down = keyboard_input.any_pressed([KeyCode::KeyW, KeyCode::ArrowUp]);
+    let up = keyboard_input.any_pressed([KeyCode::KeyS, KeyCode::ArrowDown]);
     if left{
         player_turn.rotation = Quat::from_rotation_z(20.0_f32.to_radians());
-        player_root.rotate_local_y(50.0_f32.to_radians() * ds);
+        player_root.rotate_local_y(100.0_f32.to_radians() * ds);
     }
     if right{
         player_turn.rotation = Quat::from_rotation_z(-20.0_f32.to_radians());
-        player_root.rotate_local_y(-50.0_f32.to_radians() * ds);
+        player_root.rotate_local_y(-100.0_f32.to_radians() * ds);
     }
-    if up{
-        player_turn.rotation = Quat::from_rotation_x(-5.0_f32.to_radians());
-        player_root.translation.y -= 10.0 * ds;
-    }
-    if down{
+    if up {
         player_turn.rotation = Quat::from_rotation_x(5.0_f32.to_radians());
-        player_root.translation.y += 10.0 * ds;
+        player_root.translation.y += 20.0 * ds;
+    }
+    if down && player_root.translation.y > 2.0{
+        player_turn.rotation = Quat::from_rotation_x(-5.0_f32.to_radians());
+        player_root.translation.y -= 20.0 * ds;
     }
     if !left && !right && !up && !down{
         player_turn.rotation = Quat::from_rotation_x(0.0_f32.to_radians());
@@ -64,6 +88,13 @@ pub fn update_player(
         player_root.translation.y = 2.0;
         player_root.translation.z = 0.0;
         player_root.rotation = Quat::from_rotation_y(0.0_f32.to_radians());
+    }
+
+    if player_root.translation.x > value::RESETRANGE || 
+        player_root.translation.x < -value::RESETRANGE || 
+        player_root.translation.z > value::RESETRANGE || 
+        player_root.translation.z < -value::RESETRANGE{
+        app.is_reset_game = true;
     }
 }
 
@@ -80,8 +111,9 @@ pub fn setup_asset(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    asset_server: Res<AssetServer>,
 ) {
-
+    /*
     for x in -50..50{
         for z in -50..50{
             commands.spawn((
@@ -93,7 +125,7 @@ pub fn setup_asset(
             ));
         }
     }
-
+    */
     commands.spawn((
         Transform::from_xyz(0.0, 2.0, 0.0),
         PlayerRoot,
@@ -161,6 +193,23 @@ pub fn setup_asset(
     commands.spawn((
         Camera3d::default(),
         Transform::from_xyz(-2.5, 5.5, 9.0).looking_at(Vec3::ZERO, Vec3::Y),
+        ReleaseResource,
+    ));
+
+    commands.spawn((//バージョン表記
+        Text::new(env!("CARGO_PKG_VERSION")),
+        TextFont {
+            font: asset_server.load(assets::DEFAULTFONT),
+            font_size: 10.0,
+            ..default()
+        },
+        Node {
+            position_type: PositionType::Relative,
+            align_self: AlignSelf::End,
+            justify_self: JustifySelf::End,
+            top: Val::Px(0.0),
+            ..default()
+        },
         ReleaseResource,
     ));
 }

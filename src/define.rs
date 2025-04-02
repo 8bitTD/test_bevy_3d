@@ -30,6 +30,7 @@ pub mod value{
     pub const DEFAULTROPEDISTANCE: f32 = 250.0;
     pub const FACIALBLINK: f32 = 0.1;
     pub const STAGEPATH: &str = "./assets/stage/stage_";
+    pub const RESETRANGE: f32 = 520.0;
 }
 
 pub mod debug{
