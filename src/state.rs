@@ -56,13 +56,9 @@ impl Plugin for StatePlugin {
         .add_systems(Update, 
             (
                 game::update_player,
+                game::update_camera.after(game::update_player),
                 game::check_reset_game,
                 game::gizmo,
-            ).chain().run_if(in_state(AppState::Game)),
-        )
-        .add_systems(PostUpdate, 
-            (
-                game::update_camera,
             ).chain().run_if(in_state(AppState::Game)),
         )
         .add_systems(OnExit(AppState::Game), despawn);

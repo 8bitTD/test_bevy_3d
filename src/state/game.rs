@@ -62,19 +62,23 @@ pub fn update_player(
     let down = keyboard_input.any_pressed([KeyCode::KeyW, KeyCode::ArrowUp]);
     let up = keyboard_input.any_pressed([KeyCode::KeyS, KeyCode::ArrowDown]);
     if left{
-        player_turn.rotation = Quat::from_rotation_z(20.0_f32.to_radians());
+        player_turn.rotation.z = 20.0_f32.to_radians();
+        //player_turn.rotation = Quat::from_rotation_z(20.0_f32.to_radians());
         player_root.rotate_local_y(100.0_f32.to_radians() * ds);
     }
     if right{
-        player_turn.rotation = Quat::from_rotation_z(-20.0_f32.to_radians());
+        player_turn.rotation.z = -20.0_f32.to_radians();
+        //player_turn.rotation = Quat::from_rotation_z(-20.0_f32.to_radians());
         player_root.rotate_local_y(-100.0_f32.to_radians() * ds);
     }
     if up {
-        player_turn.rotation = Quat::from_rotation_x(5.0_f32.to_radians());
+        player_turn.rotation.x = 5.0_f32.to_radians();
+        //player_turn.rotation = Quat::from_rotation_x(5.0_f32.to_radians());
         player_root.translation.y += 20.0 * ds;
     }
     if down && player_root.translation.y > 2.0{
-        player_turn.rotation = Quat::from_rotation_x(-5.0_f32.to_radians());
+        player_turn.rotation.x = -5.0_f32.to_radians();
+        //player_turn.rotation = Quat::from_rotation_x(-5.0_f32.to_radians());
         player_root.translation.y -= 20.0 * ds;
     }
     if !left && !right && !up && !down{
