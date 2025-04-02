@@ -23,12 +23,12 @@ pub struct PlayerInfo;
 #[derive(Component)]
 pub struct PlayerCameraPos;
 
-pub fn draw_example_collection(
+pub fn gizmo(
     mut gizmos: Gizmos,
 ) {
     gizmos.grid(
         Quat::from_rotation_x(90.0_f32.to_radians()),
-        UVec2::splat(105),
+        UVec2::splat(110),
         Vec2::new(10.0, 10.0),
         Color::srgba_u8(0, 0, 0, 64)
     );
