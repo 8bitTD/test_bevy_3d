@@ -1,4 +1,8 @@
-use bevy::prelude::*;
+use bevy::{
+    prelude::*,
+    utils::Duration,
+};
+use bevy_rapier3d::prelude::*;
 //use serde::{Serialize, Deserialize};
 //use std::io::Write;
 
@@ -20,15 +24,18 @@ pub enum AppState{
     Game,
 }
 
-
 #[derive(Resource)] 
 pub struct MyApp{
     pub is_reset_game: bool,
+    pub missile_timer: Timer,
+    pub movement: Vec3,
 }
 impl Default for MyApp{
     fn default() -> MyApp{
         MyApp { 
             is_reset_game: false,
+            missile_timer: Timer::new(Duration::from_millis(10), TimerMode::Repeating),
+            movement: Vec3::new(0.0, 0.0, 0.0),
         }
     }
 }
@@ -55,14 +62,12 @@ impl Plugin for StatePlugin {
         ))
         .add_systems(Update, 
             (
-                game::update_player,
-                game::update_camera.after(game::update_player),
-                game::check_reset_game,
+                game::handle_input,
                 game::gizmo,
-            ).chain().run_if(in_state(AppState::Game)),
+            )
         )
+        .add_systems(FixedUpdate, game::player_movement)
         .add_systems(OnExit(AppState::Game), despawn);
-        
     }
 }
 
